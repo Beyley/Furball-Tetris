@@ -35,10 +35,10 @@ public class GameplayDrawable : CompositeDrawable {
 		this.FullStateRedraw();
 	}
 
-	private void FullStateRedraw() {
+	public void FullStateRedraw() {
 		for (int x = 0; x < this.State.BoardSize.Width; x++) {
 			for (int y = 0; y < this.State.BoardSize.Height; y++) {
-				if (this.State.LogicalBoardState[x, y]) {
+				if (this.State.GetPixel(x, y)) {
 					this._drawables[x, y].ColorOverride = this.State.BoardColorState[x, y];
 					this._drawables[x, y].Visible = true;
 				}

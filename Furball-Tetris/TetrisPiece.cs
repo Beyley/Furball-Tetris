@@ -3,8 +3,8 @@ using System.Drawing;
 namespace Furball_Tetris; 
 
 public class TetrisPiece {
-	public bool[,] State;
-	public Size    Size;
+	public bool[,]       State;
+	public Size          Size;
 
 	public TetrisPiece(int width, int height) {
 		this.State = new bool[width, height];

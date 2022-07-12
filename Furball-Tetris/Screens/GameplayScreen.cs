@@ -35,7 +35,7 @@ public class GameplayScreen : Screen {
 			}
 		};
 		
-		FurballGame.TimeStepMethods.Add(new FixedTimeStepMethod(1000d / 20d, delegate {
+		FurballGame.TimeStepMethods.Add(new FixedTimeStepMethod(1000d / 10d, delegate {
 			this._gameplay.State.MakePieceFall();
 			this._gameplay.FullStateRedraw();
 		}));

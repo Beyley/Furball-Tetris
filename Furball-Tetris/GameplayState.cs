@@ -19,14 +19,14 @@ public class GameplayState {
 
 		this.FallingPiece = TetrisPiece.S_PIECE[0];
 
-		int a = 0;
-		for (int x = 0; x < this.LogicalBoardState.GetLength(0); x++)
-			for (int y = 15; y < this.LogicalBoardState.GetLength(1); y++) {
-				this.LogicalBoardState[x, y] = (a % 3) == 0;
-				this.BoardColorState[x, y]   = (a % 6) == 0 ? Color.Blue : Color.Red;
+		// int a = 0;
+		// for (int x = 0; x < this.LogicalBoardState.GetLength(0); x++)
+			// for (int y = 15; y < this.LogicalBoardState.GetLength(1); y++) {
+				// this.LogicalBoardState[x, y] = (a % 3) == 0;
+				// this.BoardColorState[x, y]   = (a % 6) == 0 ? Color.Blue : Color.Red;
 				
-				a++;
-			}
+				// a++;
+			// }
 	}
 
 	public void MakeFallingPiecePermanent() {
@@ -65,7 +65,7 @@ public class GameplayState {
 	public void MakePieceFall() {
 		this.FallingPieceLocation.Y++;
 		
-		if (this.FallingPieceOverlaps()) {
+		if (this.FallingPieceCollides()) {
 			this.FallingPieceLocation.Y--;
 			
 			this.MakeFallingPiecePermanent();
@@ -74,10 +74,14 @@ public class GameplayState {
 			this.FallingPieceLocation = new(5, 0);
 		}
 	}
-	public bool FallingPieceOverlaps() {
+	public bool FallingPieceCollides() {
 		if(this.FallingPiece == null)
 			throw new Exception("No piece is falling!");
 
+		//If we reached the bottom of the screen, then we are colliding
+		if (this.FallingPieceLocation.Y + this.FallingPiece.Size.Height > this.BoardSize.Height)
+			return true;
+		
 		for (int x = 0; x < this.FallingPiece.Size.Width; x++) {
 			for (int y = 0; y < this.FallingPiece.Size.Height; y++) {
 				if (!this.FallingPiece.State[x, y])

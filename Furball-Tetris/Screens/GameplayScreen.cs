@@ -19,7 +19,7 @@ public class GameplayScreen : Screen {
 			Position = new Vector2(25)
 		});
 
-		FurballGame.InputManager.OnKeyDown += delegate(object? sender, Key key) {
+		FurballGame.InputManager.OnKeyDown += delegate(object? _, Key key) {
 			switch (key) {
 				case Key.Space:
 					this._gameplay.State.MakeFallingPiecePermanent();
@@ -54,7 +54,7 @@ public class GameplayScreen : Screen {
 			}
 		};
 		
-		this.Manager.Add(this._ui = new TextDrawable(new(0), FurballGame.DEFAULT_FONT, "", 10));
+		this.Manager.Add(this._ui = new TextDrawable(new(0), FurballGame.DEFAULT_FONT, "", 30));
 	}
 
 	public override void Update(double gameTime) {

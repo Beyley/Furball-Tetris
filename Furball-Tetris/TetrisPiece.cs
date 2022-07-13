@@ -98,8 +98,8 @@ public class TetrisPiece {
 				 * 0 
 				 */
 				[0, 0] = false, [1, 0] = true,
-				[0, 1] = false, [1, 1] = true,
-				[0, 2] = false, [1, 2] = false,
+				[0, 1] = true, [1, 1] = true,
+				[0, 2] = true, [1, 2] = false,
 			}
 		};
 		//180 rotation = 0 rotation

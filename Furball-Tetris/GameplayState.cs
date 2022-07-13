@@ -14,6 +14,8 @@ public class GameplayState {
 	public TetrisPiece[] FallingPieceArray;
 	public int           FallingPieceArrayIndex;
 
+	public TetrisPiece[] NextBox;
+
 	public int LinesCleared {
 		get;
 		private set;
@@ -23,7 +25,8 @@ public class GameplayState {
 		private set;
 	}
 
-	public event EventHandler<int>? OnLevelChange;
+	public event EventHandler<int>?         OnLevelChange;
+	public event EventHandler<TetrisPiece[]>? OnNextBoxChange;
 
 	public GameplayState(int width, int height) {
 		this.LogicalBoardState = new bool[width, height];
@@ -32,6 +35,9 @@ public class GameplayState {
 
 		this.FallingPiece      = TetrisPiece.S_PIECE[0];
 		this.FallingPieceArray = TetrisPiece.S_PIECE;
+
+		this.NextBox = this.PickNewPiece();
+		this.OnNextBoxChange?.Invoke(this, this.NextBox);
 	}
 
 	public void MakeFallingPiecePermanent() {
@@ -87,8 +93,8 @@ public class GameplayState {
 		0x12
 	};
 
-	private byte _spawnId;
-	private byte _spawnCount;
+	private          byte          _spawnId;
+	private          byte          _spawnCount;
 	public TetrisPiece[] PickNewPiece() {
 		unchecked {
 			byte newSpawnId;
@@ -148,9 +154,12 @@ public class GameplayState {
 
 			this.MakeFallingPiecePermanent();
 
-			this.FallingPieceArray      = this.PickNewPiece();
+			this.FallingPieceArray      = this.NextBox;
 			this.FallingPiece           = this.FallingPieceArray[0];
 			this.FallingPieceArrayIndex = 0;
+
+			this.NextBox = this.PickNewPiece();
+			this.OnNextBoxChange?.Invoke(this, this.NextBox);
 
 			this.FallingPieceLocation = new(4, 0);
 		}

@@ -13,6 +13,9 @@ public class GameplayDrawable : CompositeDrawable {
 	private          RectanglePrimitiveDrawable    _outline;
 	private readonly RectanglePrimitiveDrawable[,] _drawables;
 
+	private readonly RectanglePrimitiveDrawable    _nextBoxOutline;
+	private readonly RectanglePrimitiveDrawable[,] _nextBoxDrawables;
+	
 	private readonly FixedTimeStepMethod _pieceFallLoop;
 
 	public GameplayDrawable() {
@@ -26,13 +29,26 @@ public class GameplayDrawable : CompositeDrawable {
 		
 		for (int x = 0; x < this.State.BoardSize.Width; x++) {
 			for (int y = 0; y < this.State.BoardSize.Height; y++) {
-				this._drawables[x, y] = new RectanglePrimitiveDrawable(new Vector2(x * boxSize, y * boxSize), new(boxSize), 1, false) {
+				this._drawables[x, y] = new RectanglePrimitiveDrawable(new Vector2(x * boxSize, y * boxSize), new(boxSize), 1, true) {
 					ColorOverride = Color.White,
-					Visible       = false,
-					Filled        = true
+					Visible       = false
 				};
 				
 				this.Drawables.Add(this._drawables[x, y]);
+			}
+		}
+
+		Vector2 nextBoxPosition = new(this._outline.Size.X + 10, 0);
+		this.Drawables.Add(this._nextBoxOutline = new RectanglePrimitiveDrawable(nextBoxPosition - Vector2.One, new Vector2(boxSize) * 4f + new Vector2(2), 1, false));
+
+		this._nextBoxDrawables = new RectanglePrimitiveDrawable[4, 4];
+		
+		for (int x = 0; x < 4; x++) {
+			for (int y = 0; y < 4; y++) {
+				this.Drawables.Add(this._nextBoxDrawables[x, y] = new RectanglePrimitiveDrawable(new Vector2(x * boxSize, y * boxSize) + nextBoxPosition, new(boxSize), 1, true) {
+					ColorOverride = Color.Red,
+					Visible = false
+				});
 			}
 		}
 		
@@ -40,7 +56,21 @@ public class GameplayDrawable : CompositeDrawable {
 		
 		FurballGame.TimeStepMethods.Add(this._pieceFallLoop = new FixedTimeStepMethod(1000d / 60d, this.OnPieceFallLoop));
 		
-		this.State.OnLevelChange += this.OnLevelChange;
+		this.State.OnLevelChange   += this.OnLevelChange;
+		this.State.OnNextBoxChange += this.OnNextBoxChange;
+		this.OnNextBoxChange(null, this.State.NextBox);
+	}
+	private void OnNextBoxChange(object? sender, TetrisPiece[] piece) {
+		foreach (RectanglePrimitiveDrawable drawable in this._nextBoxDrawables) {
+			drawable.Visible = false;
+		}
+
+		TetrisPiece e = piece[0];
+		
+		for (int x = 0; x < e.State.GetLength(0); x++)
+			for (int y = 0; y < e.State.GetLength(1); y++) {
+				this._nextBoxDrawables[x, y].Visible = e.State[x, y];
+			}
 	}
 	private void OnLevelChange(object? sender, int newLevel) {
 		newLevel = Math.Clamp(newLevel, 0, 29);
@@ -57,7 +87,7 @@ public class GameplayDrawable : CompositeDrawable {
 
 	private int FramesPerFall = FrameDropsPerLevel[0];
 
-	private int fallDelta = 0;
+	private          int                        fallDelta = 0;
 	private void OnPieceFallLoop() {
 		this.fallDelta++;
 		

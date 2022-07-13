@@ -19,41 +19,6 @@ public class GameplayScreen : Screen {
 			Position = new Vector2(25)
 		});
 
-		FurballGame.InputManager.OnKeyDown += delegate(object? _, Key key) {
-			switch (key) {
-				case Key.Space:
-					this._gameplay.State.MakeFallingPiecePermanent();
-
-					this._gameplay.State.FallingPiece           = TetrisPiece.L_PIECE[1];
-					this._gameplay.State.FallingPieceArray      = TetrisPiece.L_PIECE;
-					this._gameplay.State.FallingPieceArrayIndex = 1;
-
-					this._gameplay.State.FallingPieceLocation = Vector2D<int>.Zero;
-					this._gameplay.FullStateRedraw();
-					break;
-				case Key.Right:
-					this._gameplay.State.MakePieceMove(1);
-					this._gameplay.FullStateRedraw();
-					break;
-				case Key.Left:
-					this._gameplay.State.MakePieceMove(-1);
-					this._gameplay.FullStateRedraw();
-					break;
-				case Key.Down:
-					this._gameplay.State.MakePieceFall();
-					this._gameplay.FullStateRedraw();
-					break;
-				case Key.Z:
-					this._gameplay.State.MakePieceRotateCounterClockwise();
-					this._gameplay.FullStateRedraw();
-					break;
-				case Key.X:
-					this._gameplay.State.MakePieceRotateClockwise();
-					this._gameplay.FullStateRedraw();
-					break;
-			}
-		};
-		
 		this.Manager.Add(this._ui = new TextDrawable(new(0), FurballGame.DEFAULT_FONT, "", 30));
 	}
 

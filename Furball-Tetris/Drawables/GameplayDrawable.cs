@@ -4,6 +4,7 @@ using Furball.Engine.Engine;
 using Furball.Engine.Engine.Graphics.Drawables;
 using Furball.Engine.Engine.Graphics.Drawables.Primitives;
 using Furball.Vixie.Backends.Shared;
+using Silk.NET.Input;
 
 namespace Furball_Tetris.Drawables; 
 
@@ -17,6 +18,7 @@ public class GameplayDrawable : CompositeDrawable {
 	private readonly RectanglePrimitiveDrawable[,] _nextBoxDrawables;
 	
 	private readonly FixedTimeStepMethod _pieceFallLoop;
+	private readonly FixedTimeStepMethod _inputLoop;
 
 	public GameplayDrawable() {
 		this.State = new GameplayState(10, 20);
@@ -55,10 +57,75 @@ public class GameplayDrawable : CompositeDrawable {
 		this.FullStateRedraw();
 		
 		FurballGame.TimeStepMethods.Add(this._pieceFallLoop = new FixedTimeStepMethod(1000d / 60d, this.OnPieceFallLoop));
+		FurballGame.TimeStepMethods.Add(this._inputLoop     = new FixedTimeStepMethod(1000d / 60d, this.OnInputLoop));
 		
 		this.State.OnLevelChange   += this.OnLevelChange;
 		this.State.OnNextBoxChange += this.OnNextBoxChange;
 		this.OnNextBoxChange(null, this.State.NextBox);
+	}
+
+	private bool _lastLeftState;
+	private bool _lastRightState;
+	private bool _lastDownState;
+
+	private bool _lastRotateClockwiseState;
+	private bool _lastRotateCounterClockwiseState;
+	private void OnInputLoop() {
+		List<Key> heldKeys = FurballGame.InputManager.HeldKeys;
+
+		bool leftState  = false;
+		bool rightState = false;
+		bool downState  = false;
+
+		bool rotateClockwiseState        = false;
+		bool rotateCounterClockwiseState = false;
+		foreach (Key heldKey in heldKeys) {
+			switch (heldKey) {
+				case Key.Left:
+					leftState = true;
+					break;
+				case Key.Right:
+					rightState = true;
+					break;
+				case Key.Down:
+					downState = true;
+					break;
+				case Key.Z:
+					rotateCounterClockwiseState = true;
+					break;
+				case Key.X:
+					rotateClockwiseState = true;
+					break;
+			}
+		}
+
+		if (leftState && !this._lastLeftState) {
+			this.State.MakePieceMove(-1);
+			this.FullStateRedraw();
+		}
+		if (rightState && !this._lastRightState) {
+			this.State.MakePieceMove(1);
+			this.FullStateRedraw();
+		}
+		if (downState && !this._lastDownState) {
+			this.State.MakePieceFall();
+			this.FullStateRedraw();
+		}
+		if (rotateClockwiseState && !this._lastRotateClockwiseState) {
+			this.State.MakePieceRotateClockwise();
+			this.FullStateRedraw();
+		}
+		if (rotateCounterClockwiseState && !this._lastRotateCounterClockwiseState) {
+			this.State.MakePieceRotateCounterClockwise();
+			this.FullStateRedraw();
+		}
+		
+		this._lastLeftState  = leftState;
+		this._lastRightState = rightState;
+		this._lastDownState  = downState;
+
+		this._lastRotateClockwiseState        = rotateClockwiseState;
+		this._lastRotateCounterClockwiseState = rotateCounterClockwiseState;
 	}
 	private void OnNextBoxChange(object? sender, TetrisPiece[] piece) {
 		foreach (RectanglePrimitiveDrawable drawable in this._nextBoxDrawables) {
@@ -87,7 +154,7 @@ public class GameplayDrawable : CompositeDrawable {
 
 	private int FramesPerFall = FrameDropsPerLevel[0];
 
-	private          int                        fallDelta = 0;
+	private          int                 fallDelta;
 	private void OnPieceFallLoop() {
 		this.fallDelta++;
 		
